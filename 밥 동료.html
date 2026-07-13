@@ -1,0 +1,785 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>너 내 밥 동료가 돼라! 🍖 | SSAFY 광주 1반 밥 친구</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts: 검은고딕(Heading), 주아(Sub heading/Buttons), 나눔고딕(Body) -->
+    <link href="https://fonts.googleapis.com/css2?family=Black+Han+Sans&family=Jua&family=Noto+Sans+KR:wght@400;700&display=swap" rel="stylesheet">
+    <!-- FontAwesome Icons for Comic/Food theme -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brandOrange: '#FF5722',
+                        brandYellow: '#FFC107',
+                        brandDark: '#1A1A1A',
+                    },
+                    fontFamily: {
+                        heading: ['"Black Han Sans"', 'sans-serif'],
+                        sub: ['"Jua"', 'sans-serif'],
+                        body: ['"Noto Sans KR"', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* Neo-brutalist border and comic book shadow utilities */
+        .comic-border {
+            border: 4px solid #1A1A1A;
+        }
+        .comic-shadow {
+            box-shadow: 6px 6px 0px 0px #1A1A1A;
+        }
+        .comic-shadow-sm {
+            box-shadow: 4px 4px 0px 0px #1A1A1A;
+        }
+        .comic-shadow-lg {
+            box-shadow: 10px 10px 0px 0px #1A1A1A;
+        }
+        .comic-btn-active:active {
+            transform: translate(3px, 3px);
+            box-shadow: 3px 3px 0px 0px #1A1A1A;
+        }
+        
+        /* Custom scrollbar to match the orange comic vibe */
+        ::-webkit-scrollbar {
+            width: 12px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #F3F4F6;
+            border-left: 4px solid #1A1A1A;
+        }
+        ::-webkit-scrollbar-thumb {
+            background-color: #FF5722;
+            border: 3px solid #F3F4F6;
+            border-radius: 10px;
+        }
+
+        /* Continuous bounce for decorative food icons */
+        @keyframes float {
+            0%, 100% { transform: translateY(0) rotate(0deg); }
+            50% { transform: translateY(-10px) rotate(5deg); }
+        }
+        .floating-icon {
+            animation: float 3s ease-in-out infinite;
+        }
+    </style>
+</head>
+<body class="bg-[#FFFDF6] text-brandDark font-body selection:bg-brandYellow selection:text-brandDark overflow-x-hidden">
+
+    <script>
+        // Web Audio API helper for retro game-like click sound effects
+        let audioCtx;
+        function getAudioContext() {
+            if (!audioCtx) {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            }
+            return audioCtx;
+        }
+
+        function playSound(type) {
+            try {
+                const ctx = getAudioContext();
+                if (ctx.state === 'suspended') {
+                    ctx.resume();
+                }
+                const osc = ctx.createOscillator();
+                const gain = ctx.createGain();
+                osc.connect(gain);
+                gain.connect(ctx.destination);
+
+                const now = ctx.currentTime;
+
+                if (type === 'click') {
+                    osc.type = 'triangle';
+                    osc.frequency.setValueAtTime(150, now);
+                    osc.frequency.exponentialRampToValueAtTime(600, now + 0.1);
+                    gain.gain.setValueAtTime(0.15, now);
+                    gain.gain.linearRampToValueAtTime(0.01, now + 0.1);
+                    osc.start(now);
+                    osc.stop(now + 0.1);
+                } else if (type === 'success') {
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(300, now);
+                    osc.frequency.setValueAtTime(450, now + 0.08);
+                    osc.frequency.setValueAtTime(600, now + 0.16);
+                    gain.gain.setValueAtTime(0.1, now);
+                    gain.gain.linearRampToValueAtTime(0.01, now + 0.3);
+                    osc.start(now);
+                    osc.stop(now + 0.3);
+                } else if (type === 'spin') {
+                    osc.type = 'sawtooth';
+                    osc.frequency.setValueAtTime(100, now);
+                    osc.frequency.exponentialRampToValueAtTime(300, now + 0.15);
+                    gain.gain.setValueAtTime(0.05, now);
+                    gain.gain.linearRampToValueAtTime(0.01, now + 0.15);
+                    osc.start(now);
+                    osc.stop(now + 0.15);
+                }
+            } catch (e) {
+                console.warn("Audio Context blocked or not supported on this browser.");
+            }
+        }
+    </script>
+
+    <!-- Floating Comic-style Navigation Bar -->
+    <header class="sticky top-0 z-40 bg-[#FFFDF6] border-b-4 border-brandDark px-4 py-3 sm:px-8">
+        <div class="max-w-7xl mx-auto flex justify-between items-center">
+            <a href="#" onclick="playSound('click')" class="flex items-center space-x-2">
+                <!-- Luffy's Straw Hat Logo SVG -->
+                <svg viewBox="0 0 100 60" class="w-12 h-8 sm:w-14 sm:h-9 drop-shadow-[2px_2px_0px_rgba(26,26,26,1)] transition-transform hover:scale-110 duration-200 cursor-pointer">
+                    <ellipse cx="50" cy="42" rx="42" ry="12" fill="#FFC107" stroke="#1A1A1A" stroke-width="4"/>
+                    <path d="M22,38 C20,12 80,12 78,38 Z" fill="#FFC107" stroke="#1A1A1A" stroke-width="4"/>
+                    <path d="M21,34 C35,37 65,37 79,34 L78,38 C65,41 35,41 22,38 Z" fill="#FF5722" stroke="#1A1A1A" stroke-width="2"/>
+                </svg>
+                <span class="bg-brandOrange text-white text-xl sm:text-2xl font-heading comic-border px-3 py-1 comic-shadow-sm rotate-[-2deg] hover:rotate-0 transition-transform whitespace-nowrap">
+                    SSAFY 16기 🍖
+                </span>
+                <span class="font-sub text-lg sm:text-xl hidden md:inline-block text-brandDark whitespace-nowrap">광주 1반 밥 메이트 모집</span>
+            </a>
+            
+            <nav class="flex items-center space-x-1 sm:space-x-3">
+                <a href="#intro" onclick="playSound('click')" class="font-sub text-sm sm:text-lg hover:text-brandOrange transition-colors px-2 py-1 whitespace-nowrap">동료소개</a>
+                <a href="#strengths" onclick="playSound('click')" class="font-sub text-sm sm:text-lg hover:text-brandOrange transition-colors px-2 py-1 whitespace-nowrap">매력포인트</a>
+                <a href="#roulette" onclick="playSound('click')" class="font-sub text-sm sm:text-lg hover:text-brandOrange transition-colors px-2 py-1 bg-brandYellow comic-border comic-shadow-sm rounded-md whitespace-nowrap">장덕동 맛집</a>
+                <a href="#cta" onclick="playSound('click')" class="font-sub text-sm sm:text-lg text-white bg-brandOrange hover:bg-orange-600 transition-all px-3 py-1 comic-border comic-shadow-sm rounded-md comic-btn-active whitespace-nowrap">동료 신청</a>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section id="hero" class="relative overflow-hidden pt-12 pb-20 px-4 md:px-8 border-b-4 border-brandDark bg-gradient-to-br from-[#FFFDF6] to-amber-50">
+        <!-- Floating cartoon food decorations (SVGs & Emojis) -->
+        <div class="absolute top-10 left-[5%] floating-icon text-4xl select-none hidden md:block">🍖</div>
+        <div class="absolute top-1/2 right-[8%] floating-icon text-5xl select-none hidden lg:block" style="animation-delay: 1s;">🍲</div>
+        <div class="absolute bottom-12 left-[12%] floating-icon text-4xl select-none hidden lg:block" style="animation-delay: 1.5s;">🍺</div>
+        <div class="absolute top-20 right-[25%] floating-icon text-4xl select-none hidden md:block" style="animation-delay: 2s;">🍙</div>
+
+        <div class="max-w-4xl mx-auto text-center relative z-10 flex flex-col items-center">
+            <!-- High-Quality Custom Straw Hat Jolly Roger SVG -->
+            <div class="mb-4 floating-icon" style="animation-delay: 0.5s;">
+                <svg viewBox="0 0 100 100" class="w-20 h-20 sm:w-24 sm:h-24 drop-shadow-[6px_6px_0px_rgba(26,26,26,1)] transition-transform hover:rotate-6 duration-300">
+                    <!-- Crossed Bones (Back) -->
+                    <path d="M18,18 L82,82 M82,18 L18,82" stroke="#1A1A1A" stroke-width="12" stroke-linecap="round"/>
+                    <path d="M18,18 L82,82 M82,18 L18,82" stroke="#FFFDF6" stroke-width="7" stroke-linecap="round"/>
+                    <!-- Bone Ends -->
+                    <circle cx="18" cy="18" r="8" fill="#FFFDF6" stroke="#1A1A1A" stroke-width="4"/>
+                    <circle cx="82" cy="82" r="8" fill="#FFFDF6" stroke="#1A1A1A" stroke-width="4"/>
+                    <circle cx="82" cy="18" r="8" fill="#FFFDF6" stroke="#1A1A1A" stroke-width="4"/>
+                    <circle cx="18" cy="82" r="8" fill="#FFFDF6" stroke="#1A1A1A" stroke-width="4"/>
+                    
+                    <!-- Skull Head Base -->
+                    <circle cx="50" cy="52" r="23" fill="#FFFDF6" stroke="#1A1A1A" stroke-width="4"/>
+                    <path d="M39,67 L61,67 L57,78 L43,78 Z" fill="#FFFDF6" stroke="#1A1A1A" stroke-width="4"/>
+                    <!-- Teeth Details -->
+                    <line x1="46" y1="67" x2="46" y2="78" stroke="#1A1A1A" stroke-width="2"/>
+                    <line x1="50" y1="67" x2="50" y2="78" stroke="#1A1A1A" stroke-width="2"/>
+                    <line x1="54" y1="67" x2="54" y2="78" stroke="#1A1A1A" stroke-width="2"/>
+                    
+                    <!-- Eyes & Nose -->
+                    <circle cx="41" cy="49" r="4.5" fill="#1A1A1A"/>
+                    <circle cx="59" cy="49" r="4.5" fill="#1A1A1A"/>
+                    <polygon points="50,55 47,60 53,60" fill="#1A1A1A"/>
+                    
+                    <!-- Straw Hat Over Skull -->
+                    <!-- Crown -->
+                    <path d="M29,38 C29,14 71,14 71,38 Z" fill="#FFC107" stroke="#1A1A1A" stroke-width="4"/>
+                    <!-- Brim -->
+                    <ellipse cx="50" cy="40" rx="32" ry="7" fill="#FFC107" stroke="#1A1A1A" stroke-width="4"/>
+                    <!-- Red Ribbon -->
+                    <path d="M29.5,34 C40,36 60,36 70.5,34 L70,37 C60,39 40,39 30,37 Z" fill="#FF5722" stroke="#1A1A1A" stroke-width="2"/>
+                </svg>
+            </div>
+
+            <!-- Comic Book Accent Badge -->
+            <div class="inline-block bg-brandYellow text-brandDark font-sub text-lg sm:text-2xl comic-border px-6 py-2 comic-shadow-sm rotate-[-1.5deg] mb-8 whitespace-nowrap">
+                🏴‍☠️ 전설의 동료 모집: 오늘 밥 먹을 진짜 친구를 찾아라!
+            </div>
+
+            <!-- Main Catchphrase Header -->
+            <h1 class="font-heading text-4xl sm:text-6xl md:text-7xl lg:text-8xl tracking-tight text-brandDark leading-none mb-6">
+                오늘 메뉴는 <br class="sm:hidden">
+                <span class="text-white bg-brandOrange px-4 py-1 inline-block rotate-[1deg] comic-border comic-shadow">그대가</span> 고르세요.
+            </h1>
+            
+            <p class="font-sub text-2xl sm:text-3.5xl md:text-4xl text-brandOrange mb-6 leading-relaxed whitespace-nowrap">
+                "난 매운 것만 아니면 다 좋으니까! 😉🌶️❌"
+            </p>
+
+            <!-- Custom One Piece Food Feast Illustration Frame -->
+            <div class="w-full max-w-3xl my-6 comic-border comic-shadow-lg rounded-2xl overflow-hidden bg-white transform rotate-[-0.5deg] hover:rotate-0 transition-all duration-300">
+                <img src="watermarked_img_9236855899149194461.png" alt="너 내 밥 동료가 돼라 만찬 일러스트" class="w-full h-auto object-cover">
+            </div>
+
+            <p class="max-w-2xl mx-auto text-gray-700 text-base sm:text-lg md:text-xl font-medium leading-relaxed mb-10 mt-6">
+                파이썬 프로젝트 디버깅, 고단한 알고리즘 실습으로 뇌 용량이 꽉 차셨나요?<br>
+                점심시간에 수줍어서 혼자 밥을 먹거나, 같이 갈 파티원을 구하느라 눈치 보지 마세요.<br>
+                <span class="bg-brandYellow/40 font-bold px-1 whitespace-nowrap">SSAFY 16기 광주 1반 동료들</span>과 편안하게 수다 떨며 식사할 준비가 완료되었습니다!
+            </p>
+
+            <!-- Dynamic CTA Buttons in Hero -->
+            <div class="flex flex-col sm:flex-row justify-center items-center gap-4 sm:gap-6">
+                <a href="#roulette" onclick="playSound('click')" class="w-full sm:w-auto font-sub text-xl text-brandDark bg-brandYellow hover:bg-amber-400 transition-colors px-8 py-4 comic-border comic-shadow rounded-xl comic-btn-active text-center whitespace-nowrap">
+                    🎯 뭐 먹을지 모를땐? 돌림판
+                </a>
+                <a href="#cta" onclick="playSound('click')" class="w-full sm:w-auto font-sub text-xl text-white bg-brandOrange hover:bg-orange-600 transition-colors px-8 py-4 comic-border comic-shadow rounded-xl comic-btn-active text-center whitespace-nowrap">
+                    🍖 "너 내 밥 동료가 돼라!" 신청
+                </a>
+            </div>
+
+            <!-- Funny Comic Alert Bubble -->
+            <div class="mt-12 inline-flex items-center gap-3 bg-red-100 text-red-800 text-sm sm:text-base font-bold comic-border px-5 py-3 rounded-full comic-shadow-sm max-w-md mx-auto">
+                <i class="fa-solid fa-triangle-exclamation text-brandOrange animate-bounce text-xl"></i>
+                <span class="whitespace-nowrap">혼밥 탈출 보장! 편한 한끼 식사 파티원 모집 중</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- Intro Section: SSAFY Target customized -->
+    <section id="intro" class="py-16 px-4 md:px-8 border-b-4 border-brandDark bg-white">
+        <div class="max-w-5xl mx-auto">
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-10 items-center">
+                
+                <!-- Left side: Fun Avatar/Comic Panel illustration -->
+                <div class="lg:col-span-5 flex justify-center">
+                    <div class="relative w-72 h-80 bg-brandYellow comic-border comic-shadow-lg rounded-2xl flex flex-col items-center justify-between p-6 rotate-[-2deg] hover:rotate-0 transition-transform">
+                        <div class="absolute -top-6 -right-6 text-6xl rotate-12">🍗</div>
+                        <div class="w-32 h-32 rounded-full border-4 border-brandDark bg-[#FFFDF6] flex items-center justify-center overflow-hidden">
+                            <i class="fa-solid fa-face-laugh-beam text-brandOrange text-7xl"></i>
+                        </div>
+                        <div class="bg-brandDark text-[#FFFDF6] px-4 py-1.5 font-sub text-lg comic-border rounded-lg shadow-md -mt-4 whitespace-nowrap">
+                            밥 동료 이진수 (편안함 Lv. 99)
+                        </div>
+                        <p class="font-sub text-center text-brandDark text-md leading-snug mt-2">
+                            "파이썬 프로젝트 끝내고 시원하게 밥 메이트 하실 분 구함!"
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Right side: Storytelling text focusing on seeking eating buddies -->
+                <div class="lg:col-span-7">
+                    <div class="bg-[#FFFCEB] p-6 sm:p-8 comic-border comic-shadow rounded-2xl">
+                        <h2 class="font-heading text-3xl sm:text-4xl text-brandDark mb-4 leading-tight">
+                            "너 내 밥 동료가 돼라! 🏴‍☠️🍖"
+                        </h2>
+                        <h3 class="font-sub text-xl text-brandOrange mb-6">
+                            SSAFY 광주 1반 전용 혼밥 탈출 가이드
+                        </h3>
+                        
+                        <div class="space-y-4 text-gray-700 font-medium leading-relaxed text-base sm:text-lg">
+                            <p>
+                                쉼 없이 몰아치는 파이썬 프로젝트 코딩 실습과 까다로운 알고리즘... 드디어 점심시간이 왔는데 누구랑 밥을 먹어야 할지 매번 눈치 보이고 쓸쓸하셨나요?
+                            </p>
+                            <p class="border-l-4 border-brandOrange pl-4 py-1 italic bg-orange-50 text-brandDark">
+                                "같이 먹을 동료가 없다면 망설임 없이 저를 부르세요! 매운 것만 아니면 어떤 자리든 참여합니다."
+                            </p>
+                            <p>
+                                낯가림이 심해 먼저 "오늘 점심 같이 갈래?"라고 말을 걸지 못하는 광주 1반의 숨은 인재 여러분 모두 환영합니다!
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Strengths Section (강점 카드) -->
+    <section id="strengths" class="py-20 px-4 md:px-8 border-b-4 border-brandDark bg-amber-50/50">
+        <div class="max-w-6xl mx-auto">
+            <div class="text-center mb-16">
+                <span class="text-brandOrange font-heading text-lg tracking-wider bg-white px-4 py-1.5 comic-border comic-shadow-sm rounded-full whitespace-nowrap">BEST BUDDY IN SSAFY</span>
+                <h2 class="font-heading text-4xl sm:text-5xl text-brandDark mt-4">
+                    동료 매력 분석표 📊
+                </h2>
+                <p class="font-sub text-xl text-gray-600 mt-2">
+                    함께 식사하며 파이썬 코드 토크부터 가벼운 힐링까지 나눌 동료의 매력!
+                </p>
+            </div>
+
+            <!-- Grid containing 3 Neo-brutalist cards -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                
+                <!-- Card 1: 입맛 맞춤 배려심 -->
+                <div class="bg-white p-8 comic-border comic-shadow rounded-2xl hover:-translate-y-1 transition-transform">
+                    <div class="w-16 h-16 bg-orange-100 rounded-2xl comic-border flex items-center justify-center mb-6">
+                        <i class="fa-solid fa-bowl-food text-brandOrange text-3xl"></i>
+                    </div>
+                    <h3 class="font-sub text-2xl text-brandDark mb-4 whitespace-nowrap">
+                        🍲 당신의 입맛 맞춤 배려
+                    </h3>
+                    <p class="text-gray-600 font-medium leading-relaxed">
+                        한식, 양식, 일식, 중식, 분식까지 가리는 것 없이 무엇이든 당신의 입맛에 기분 좋게 맞춰줄 수 있습니다. 원하는 메뉴만 말해주세요!
+                    </p>
+                    <div class="mt-6 pt-4 border-t-2 border-dashed border-gray-200">
+                        <span class="text-xs font-bold text-brandOrange bg-orange-50 px-3 py-1.5 rounded-full whitespace-nowrap">
+                            #어디든_오케이 #메뉴양보_왕
+                        </span>
+                    </div>
+                </div>
+
+                <!-- Card 2: 밥도 좋고 술도 좋은 유연함 -->
+                <div class="bg-white p-8 comic-border comic-shadow rounded-2xl hover:-translate-y-1 transition-transform">
+                    <div class="w-16 h-16 bg-yellow-100 rounded-2xl comic-border flex items-center justify-center mb-6">
+                        <i class="fa-solid fa-beer-mug-empty text-brandYellow text-3xl"></i>
+                    </div>
+                    <h3 class="font-sub text-2xl text-brandDark mb-4 whitespace-nowrap">
+                        🍻 밥, 반주 모두 환영!
+                    </h3>
+                    <p class="text-gray-600 font-medium leading-relaxed">
+                        든든하게 한 끼 채우는 점심 식사는 물론, 지친 실습 끝난 저녁에 시원하게 맥주나 소주 한잔 기울이는 힐링 반주 타임도 언제나 함께 달릴 수 있습니다.
+                    </p>
+                    <div class="mt-6 pt-4 border-t-2 border-dashed border-gray-200">
+                        <span class="text-xs font-bold text-brandYellow bg-amber-50 text-amber-800 px-3 py-1.5 rounded-full whitespace-nowrap">
+                            #맥주한잔_오케이 #하루끝_스트레스_타파
+                        </span>
+                    </div>
+                </div>
+
+                <!-- Card 3: 어색함 제로 친근감 -->
+                <div class="bg-white p-8 comic-border comic-shadow rounded-2xl hover:-translate-y-1 transition-transform">
+                    <div class="w-16 h-16 bg-green-100 rounded-2xl comic-border flex items-center justify-center mb-6">
+                        <i class="fa-solid fa-handshake-simple text-emerald-600 text-3xl"></i>
+                    </div>
+                    <h3 class="font-sub text-2xl text-brandDark mb-4 whitespace-nowrap">
+                        🤝 첫 만남의 어색함 제로
+                    </h3>
+                    <p class="text-gray-600 font-medium leading-relaxed">
+                        처음 만난 동료라고 뚝딱거릴까 걱정하지 마세요. 어색함 없이 바로 편하게 어울릴 수 있는 자연스러운 식사 분위기를 주도해 드립니다.
+                    </p>
+                    <div class="mt-6 pt-4 border-t-2 border-dashed border-gray-200">
+                        <span class="text-xs font-bold text-emerald-600 bg-emerald-50 px-3 py-1.5 rounded-full whitespace-nowrap">
+                            #아싸인싸_모두대환영 #친근한_말동무
+                        </span>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- Interactive Menu Selector Section -->
+    <section id="roulette" class="py-16 px-4 md:px-8 border-b-4 border-brandDark bg-brandOrange text-white">
+        <div class="max-w-4xl mx-auto">
+            <div class="text-center mb-10">
+                <span class="bg-brandDark text-brandYellow font-heading text-md sm:text-lg px-4 py-1.5 rounded-full comic-border shadow-sm whitespace-nowrap">의사결정 긴급 처방전</span>
+                <h2 class="font-heading text-4xl sm:text-5xl mt-4">
+                    광주 장덕동 맵찔이 맛집 & 밥 친구 돌림판 🎡
+                </h2>
+                <p class="font-sub text-xl text-yellow-200 mt-2">
+                    더이상 밥 친구 고민하지 말고, 장덕동(수완지구) 인근 무난하고 든든한 18가지 밥 친구 코스를 돌려보세요!
+                </p>
+            </div>
+
+            <div class="bg-white text-brandDark p-8 comic-border comic-shadow rounded-2xl text-center relative overflow-hidden">
+                <!-- Slot style display screen with Responsive Image Frame -->
+                <div class="max-w-md mx-auto bg-gray-100 rounded-xl comic-border p-6 mb-8 relative flex flex-col items-center">
+                    <div class="absolute top-2 left-1/2 -translate-x-1/2 text-xs font-heading tracking-widest text-gray-400">RECOMMENDED DINING COURSE</div>
+                    
+                    <!-- 음식 비주얼 창 (Unsplash 매칭 이미지 및 매핑 오버레이 효과) -->
+                    <div class="w-full h-48 mt-4 mb-4 rounded-lg overflow-hidden comic-border bg-amber-50 flex items-center justify-center relative shadow-inner">
+                        <img id="roulette-image" src="https://images.unsplash.com/photo-1498654896293-37aacf113fd9?w=500&q=80" alt="음식 대표 사진" class="w-full h-full object-cover transition-opacity duration-150">
+                        <div id="image-overlay" class="absolute inset-0 bg-brandDark/40 flex items-center justify-center opacity-0 transition-all duration-300 pointer-events-none">
+                            <span class="text-white font-heading text-xl comic-border bg-brandOrange px-4 py-2 rotate-[-3deg] comic-shadow-sm">🍖 동료들과 출발!</span>
+                        </div>
+                    </div>
+
+                    <div id="roulette-display" class="font-heading text-2xl sm:text-3xl text-brandOrange tracking-tight py-2">
+                        눌러서 동료랑 갈 식당 뽑기! 👇
+                    </div>
+                    <div id="roulette-location" class="font-sub text-gray-500 text-lg mt-1 min-h-[3rem]">
+                        -
+                    </div>
+                </div>
+
+                <!-- Action Button for Spinner -->
+                <button id="spin-btn" onclick="spinRoulette()" class="px-8 py-4 font-heading text-2xl text-brandDark bg-brandYellow hover:bg-amber-400 border-4 border-brandDark comic-shadow rounded-xl comic-btn-active inline-flex items-center gap-3">
+                    <i class="fa-solid fa-rotate-right animate-spin-slow"></i>
+                    오늘의 밥 동료 코스 뽑기!
+                </button>
+
+                <!-- Explanation / Location helper text -->
+                <p class="mt-6 text-sm text-gray-500 font-medium">
+                    📍 광주 광산구 장덕동 (수완지구) 내 맵지 않고 부담 없이 밥 친구와 대화 나누기 좋은 식당 리스트입니다.
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <script>
+        // Expanded list of 18 non-spicy food options suitable around Jangdeok-dong, Gwangju with corresponding real-world premium images
+        const nonSpicyMenus = [
+            { 
+                name: "🍖 보들보들 보쌈 정식", 
+                location: "항아리보쌈 수완점 (장덕동 먹자골목)",
+                image: "https://images.unsplash.com/photo-1628840042765-356cda07504e?w=500&q=80" 
+            },
+            { 
+                name: "🍲 맑고 개운한 국밥", 
+                location: "현대옥 수완점 (장덕동 상가 단지)",
+                image: "https://images.unsplash.com/photo-1608897013039-887f21d8c804?w=500&q=80" 
+            },
+            { 
+                name: "🍣 고소한 모듬 초밥", 
+                location: "수완초밥 (장덕동 수완 우미린 2차 부근)",
+                image: "https://images.unsplash.com/photo-1579871494447-9811cf80d66c?w=500&q=80" 
+            },
+            { 
+                name: "🥩 겉바속촉 숯불 돈카츠", 
+                location: "정동 수완점 (장덕동 먹거리 골목)",
+                image: "https://images.unsplash.com/photo-1591814468924-caf7f5823dd4?w=500&q=80" 
+            },
+            { 
+                name: "🥟 맑은 육수 고기만두전골", 
+                location: "밀가손칼국수 (장덕도서관 부근)",
+                image: "https://images.unsplash.com/photo-1534422298391-e4f8c172dddb?w=500&q=80" 
+            },
+            { 
+                name: "🍛 명품 갈비 솥밥", 
+                location: "솔솥 수완점 (수완지구대 먹자골목 안쪽)",
+                image: "https://images.unsplash.com/photo-1512058564366-18510be2db19?w=500&q=80" 
+            },
+            { 
+                name: "🍤 바삭한 모듬 텐동", 
+                location: "요쿠야마치 수완점 (수완동/장덕동 경계 수완센트럴병원 옆)",
+                image: "https://images.unsplash.com/photo-1615224345062-3e48d70d988a?w=500&q=80" 
+            },
+            { 
+                name: "🥬 고소하고 아삭한 상추튀김", 
+                location: "장덕동 동네 분식맛집 (장덕초등학교 건너편)",
+                image: "https://images.unsplash.com/photo-1626082927389-6cd097cdc6ec?w=500&q=80" 
+            },
+            { 
+                name: "🍜 부드러운 양지 쌀국수", 
+                location: "에이시아 수완점 (성덕공원 성덕고 맞은편)",
+                image: "https://images.unsplash.com/photo-1582878826629-29b7ad1cdc43?w=500&q=80" 
+            },
+            { 
+                name: "🍜 깊은 국물의 돈코츠 라멘", 
+                location: "라멘티스트 (장덕동 행정복지센터 인근)",
+                image: "https://images.unsplash.com/photo-1569718212165-3a8278d5f624?w=500&q=80" 
+            },
+            { 
+                name: "🍲 뜨끈하고 담백한 소고기 샤브샤브", 
+                location: "소담촌 수완점 (장덕동 롯데아울렛 건너편 상가 2층)",
+                image: "https://images.unsplash.com/photo-1563245372-f21724e3856d?w=500&q=80" 
+            },
+            { 
+                name: "🍝 꾸덕하고 베이컨 풍성한 크림 파스타", 
+                location: "OND 수완 (장덕동 분위기 예쁜 양식 레스토랑)",
+                image: "https://images.unsplash.com/photo-1645112411341-6c4fd023714a?w=500&q=80" 
+            },
+            { 
+                name: "🍛 단짠 수제 간장 장조림 덮밥", 
+                location: "핵밥 수완점 (롯데마트 수완점 4층 푸드코트)",
+                image: "https://images.unsplash.com/photo-1536304997881-a372c179924b?w=500&q=80" 
+            },
+            { 
+                name: "🥣 부드럽고 녹진한 들깨수제비", 
+                location: "다정들깨수제비 (장덕동 성덕마을 조용하고 아늑한 식당)",
+                image: "https://images.unsplash.com/photo-1547592165-e1d17fed6005?w=500&q=80" 
+            },
+            { 
+                name: "🥪 산뜻한 아보카도 포케 & 샐러드", 
+                location: "보울레시피 수완점 (장덕동 카페거리 골목)",
+                image: "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=500&q=80" 
+            },
+            { 
+                name: "🧀 그릴드 치즈 불고기 파니니", 
+                location: "수완지구 브런치 카페 브라운힐 (성덕마을 어귀)",
+                image: "https://images.unsplash.com/photo-1528735602780-2552fd46c7af?w=500&q=80" 
+            },
+            { 
+                name: "🍢 가래떡 떡볶이와 맑은 순둥이 오뎅탕", 
+                location: "우리할매떡볶이 수완점 (장덕동 수완골드클래스 상가)",
+                image: "https://images.unsplash.com/photo-1498654896293-37aacf113fd9?w=500&q=80" 
+            },
+            { 
+                name: "🐟 겉바속촉 고소한 고등어 화덕구이", 
+                location: "달빛에구운고등어 수완점 (장덕동 외곽 메인도로 사거리)",
+                image: "https://images.unsplash.com/photo-1519708227418-c8fd9a32b7a2?w=500&q=80" 
+            }
+        ];
+
+        let isSpinning = false;
+
+        function spinRoulette() {
+            if (isSpinning) return;
+            isSpinning = true;
+            
+            const display = document.getElementById('roulette-display');
+            const loc = document.getElementById('roulette-location');
+            const imgElement = document.getElementById('roulette-image');
+            const overlay = document.getElementById('image-overlay');
+            const btn = document.getElementById('spin-btn');
+            
+            // Reset overlay and lock button
+            overlay.classList.add('opacity-0');
+            btn.disabled = true;
+            btn.classList.add('opacity-80');
+            
+            let counter = 0;
+            const maxCycles = 15;
+            
+            // Fast interval for slot-machine scrolling effect
+            const timer = setInterval(() => {
+                playSound('spin');
+                const randomMenu = nonSpicyMenus[Math.floor(Math.random() * nonSpicyMenus.length)];
+                display.innerText = randomMenu.name;
+                loc.innerText = randomMenu.location;
+                imgElement.src = randomMenu.image;
+                
+                counter++;
+                if (counter >= maxCycles) {
+                    clearInterval(timer);
+                    // Select final random item safely
+                    const finalMenu = nonSpicyMenus[Math.floor(Math.random() * nonSpicyMenus.length)];
+                    display.innerText = finalMenu.name;
+                    loc.innerText = `추천 장소: ${finalMenu.location}`;
+                    imgElement.src = finalMenu.image;
+                    
+                    playSound('success');
+                    // Reveal the "Let's Go!" overlay on top of the final image
+                    overlay.classList.remove('opacity-0');
+                    
+                    // Release lock
+                    isSpinning = false;
+                    btn.disabled = false;
+                    btn.classList.remove('opacity-80');
+                }
+            }, 110);
+        }
+    </script>
+
+    <!-- Action / Request Form (동료 신청하기) -->
+    <section id="cta" class="py-20 px-4 md:px-8 border-b-4 border-brandDark bg-[#FFFDF6]">
+        <div class="max-w-3xl mx-auto">
+            <div class="text-center mb-12">
+                <span class="text-brandDark font-heading text-lg tracking-wider bg-brandYellow px-4 py-1.5 comic-border comic-shadow-sm rounded-full whitespace-nowrap">JOIN THE CREW</span>
+                <h2 class="font-heading text-4xl sm:text-5xl text-brandDark mt-4">
+                    밥 동료 지원하기 🍖
+                </h2>
+                <p class="font-sub text-xl text-brandOrange mt-2">
+                    "오늘 한 끼, 혹은 시원하게 저녁 반주 하실래요? 가볍게 메시지를 보내보세요!"
+                </p>
+            </div>
+
+            <!-- Form Wrapper with Neo-brutalist border -->
+            <form id="buddy-form" onsubmit="submitBuddyForm(event)" class="bg-white p-6 sm:p-10 comic-border comic-shadow rounded-2xl space-y-6">
+                
+                <!-- Mattermost Name / ID field (Updated to Name/MM ID) -->
+                <div>
+                    <label class="block font-sub text-xl text-brandDark mb-2" for="slack-id">
+                        1. 당신의 이름 또는 Mattermost (MM) ID <span class="text-brandOrange">*</span>
+                    </label>
+                    <input type="text" id="slack-id" required placeholder="예: 홍길동 (광주 1반) 또는 gildong.hong" 
+                           class="w-full p-4 comic-border rounded-xl text-lg font-medium focus:outline-none focus:ring-4 focus:ring-brandOrange focus:border-brandDark">
+                </div>
+
+                <!-- Choice of meal selection -->
+                <div>
+                    <label class="block font-sub text-xl text-brandDark mb-2">
+                        2. 언제 함께 드실 건가요? <span class="text-brandOrange">*</span>
+                    </label>
+                    <div class="grid grid-cols-2 gap-4">
+                        <label class="comic-border p-4 rounded-xl flex items-center justify-center gap-2 cursor-pointer bg-orange-50/50 hover:bg-orange-100 transition-colors">
+                            <input type="radio" name="meal-time" value="점심식사" checked class="accent-brandOrange h-5 w-5">
+                            <span class="font-sub text-lg text-brandDark whitespace-nowrap">점심식사 🍲</span>
+                        </label>
+                        <label class="comic-border p-4 rounded-xl flex items-center justify-center gap-2 cursor-pointer bg-yellow-50/50 hover:bg-yellow-100 transition-colors">
+                            <input type="radio" name="meal-time" value="저녁 & 반주" class="accent-brandOrange h-5 w-5">
+                            <span class="font-sub text-lg text-brandDark whitespace-nowrap">저녁 & 반주 🍻</span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Custom Menu Vibe -->
+                <div>
+                    <label class="block font-sub text-xl text-brandDark mb-2">
+                        3. 오늘 끌리는 음식 스타일은? (복수 선택 가능)
+                    </label>
+                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                        <label class="comic-border p-3 rounded-lg flex items-center gap-2 cursor-pointer bg-white hover:bg-gray-50">
+                            <input type="checkbox" name="food-cat" value="든든한 한식" class="accent-brandOrange rounded h-4 w-4">
+                            <span class="font-medium text-brandDark whitespace-nowrap">한식 🍚</span>
+                        </label>
+                        <label class="comic-border p-3 rounded-lg flex items-center gap-2 cursor-pointer bg-white hover:bg-gray-50">
+                            <input type="checkbox" name="food-cat" value="깔끔한 양식/일식" class="accent-brandOrange rounded h-4 w-4">
+                            <span class="font-medium text-brandDark whitespace-nowrap">양식/일식 🍝</span>
+                        </label>
+                        <label class="comic-border p-3 rounded-lg flex items-center gap-2 cursor-pointer bg-white hover:bg-gray-50">
+                            <input type="checkbox" name="food-cat" value="부드러운 중식" class="accent-brandOrange rounded h-4 w-4">
+                            <span class="font-medium text-brandDark whitespace-nowrap">중식 🥟</span>
+                        </label>
+                        <label class="comic-border p-3 rounded-lg flex items-center gap-2 cursor-pointer bg-white hover:bg-gray-50">
+                            <input type="checkbox" name="food-cat" value="간편한 분식/브런치" class="accent-brandOrange rounded h-4 w-4">
+                            <span class="font-medium text-brandDark whitespace-nowrap">분식 🍢</span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Short Message -->
+                <div>
+                    <label class="block font-sub text-xl text-brandDark mb-2" for="message">
+                        4. 함께 식사할 밥 친구(나)에게 남기고 싶은 한 마디
+                    </label>
+                    <textarea id="message" rows="3" placeholder="오늘 파이썬 실습 마무리하고 시원하게 밥 한 끼 같이 먹어요! / 먼저 말 걸기 쑥스러웠는데 맛있는 것 먹으러 가요!" 
+                              class="w-full p-4 comic-border rounded-xl text-lg font-medium focus:outline-none focus:ring-4 focus:ring-brandOrange focus:border-brandDark"></textarea>
+                </div>
+
+                <!-- Copy-to-clipboard backup warning info with Mattermost theme -->
+                <div class="bg-amber-50 p-4 rounded-xl comic-border text-sm text-amber-900 flex gap-2 items-start">
+                    <i class="fa-solid fa-circle-info text-brandYellow text-lg mt-0.5"></i>
+                    <div>
+                        <span class="font-bold">안심 메시지 시스템:</span> 신청이 제출되면, 밥 친구 동료에게 보낼 수 있는 예쁘게 정리된 마터모스트(MM) 전송 전용 메시지가 자동 생성됩니다! 이를 복사하여 마터모스트에 붙여넣기만 하면 연결 완료!
+                    </div>
+                </div>
+
+                <!-- Submit Button -->
+                <button type="submit" class="w-full py-4 text-center font-heading text-2xl text-white bg-brandOrange hover:bg-orange-600 transition-colors comic-border comic-shadow rounded-xl comic-btn-active">
+                    🚀 밥 메이트 모험 신청하기
+                </button>
+            </form>
+        </div>
+    </section>
+
+    <!-- Custom Comic Modal Box for RSVP/DM Form Results -->
+    <div id="modal-backdrop" class="fixed inset-0 bg-brandDark/70 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-white w-full max-w-lg comic-border comic-shadow-lg rounded-2xl p-6 relative">
+            <button onclick="closeModal()" class="absolute top-4 right-4 text-gray-500 hover:text-brandDark text-2xl">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+            
+            <div class="text-center mb-6">
+                <span class="text-5xl">🍖🔥</span>
+                <h3 class="font-heading text-3xl text-brandOrange mt-3">신청 메시지 자동 완성!</h3>
+                <p class="font-sub text-lg text-brandDark mt-1">우리 이제 정식 밥 동료가 될 수 있습니다!</p>
+            </div>
+
+            <!-- Pre-formatted text block so users can copy as copy-to-clipboard with ease -->
+            <div class="bg-gray-100 p-4 rounded-xl comic-border mb-6">
+                <p class="text-xs font-bold text-gray-400 mb-2 uppercase tracking-wide">📬 Mattermost(MM) 발송용 메시지 (복사 가능)</p>
+                <textarea id="copy-text-box" readonly class="w-full h-32 bg-transparent border-0 outline-none text-brandDark font-mono text-sm leading-relaxed resize-none"></textarea>
+            </div>
+
+            <!-- Buttons inside Modal -->
+            <div class="flex flex-col sm:flex-row gap-3">
+                <button onclick="copyToClipboard()" class="flex-1 py-3 font-sub text-lg bg-brandYellow hover:bg-amber-400 border-2 border-brandDark rounded-xl comic-shadow-sm comic-btn-active flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-copy"></i> 메시지 복사하기
+                </button>
+                <button onclick="closeModal()" class="flex-1 py-3 font-sub text-lg bg-brandDark text-[#FFFDF6] hover:bg-gray-800 border-2 border-brandDark rounded-xl comic-shadow-sm comic-btn-active">
+                    완료! 창 닫기
+                </button>
+            </div>
+            
+            <!-- Toast Feedback in Modal -->
+            <div id="toast-message" class="text-center text-xs font-bold text-emerald-600 mt-4 h-4 opacity-0 transition-opacity">
+                클립보드에 복사 완료! 이제 마터모스트(MM) 대화방에 붙여넣어 보세요!
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function submitBuddyForm(event) {
+            event.preventDefault();
+            playSound('success');
+
+            const slackId = document.getElementById('slack-id').value;
+            const mealTime = document.querySelector('input[name="meal-time"]:checked').value;
+            
+            const selectedCats = [];
+            document.querySelectorAll('input[name="food-cat"]:checked').forEach(cb => {
+                selectedCats.push(cb.value);
+            });
+            const catString = selectedCats.length > 0 ? selectedCats.join(', ') : "가리는 것 전혀 없음!";
+            const message = document.getElementById('message').value || "오늘 맛있는 메뉴 골라주시면 기쁘게 동행하겠습니다!";
+
+            // Formatting neat Mattermost-friendly markdown template
+            const mmMessageTemplate = 
+`🍖 *[SSAFY 밥 동료 신청 도착!]* 🏴‍☠️
+
+"똑똑! 오늘 같이 밥 동료 할까요?"
+• **신청자 이름/MM ID**: ${slackId}
+• **선호 식사 시간**: ${mealTime} 🍲🍻
+• **먹고 싶은 스타일**: ${catString}
+• **한 마디**: "${message}"
+
+_매운 음식은 정중히 사양하는 안심 밥 메이트! 편하게 매칭해주세요!_`;
+
+            document.getElementById('copy-text-box').value = mmMessageTemplate;
+            
+            // Show modal
+            document.getElementById('modal-backdrop').classList.remove('hidden');
+        }
+
+        function closeModal() {
+            playSound('click');
+            document.getElementById('modal-backdrop').classList.add('hidden');
+            // Reset form
+            document.getElementById('buddy-form').reset();
+        }
+
+        function copyToClipboard() {
+            playSound('success');
+            const textBox = document.getElementById('copy-text-box');
+            textBox.select();
+            textBox.setSelectionRange(0, 99999); // Mobile compatibility
+            
+            try {
+                // Using fallback execution since navigator.clipboard might face restrictions in sandboxed iframe previews
+                document.execCommand('copy');
+                
+                // Show dynamic feedback toast inside modal
+                const toast = document.getElementById('toast-message');
+                toast.classList.remove('opacity-0');
+                toast.classList.add('opacity-100');
+                setTimeout(() => {
+                    toast.classList.remove('opacity-100');
+                    toast.classList.add('opacity-0');
+                }, 3000);
+            } catch (err) {
+                console.error("Failed to copy using old clipboard method");
+            }
+        }
+    </script>
+
+    <!-- Comic Footer -->
+    <footer class="bg-brandDark text-[#FFFDF6] border-t-4 border-brandDark pt-16 pb-8 px-4 sm:px-8">
+        <div class="max-w-6xl mx-auto flex flex-col md:flex-row justify-between items-center gap-8">
+            <div class="text-center md:text-left">
+                <span class="inline-block bg-brandOrange text-white text-xl font-heading comic-border px-3 py-1 comic-shadow-sm rotate-[-1deg] mb-3 whitespace-nowrap">
+                    오늘 한 끼도 성공적 🍖
+                </span>
+                <p class="text-gray-400 font-medium text-sm mt-2 max-w-sm">
+                    SSAFY 16기 광주 1반의 배려 넘치고 활기찬 식사 문화 발전을 위해 디자인 및 배포된 유쾌한 메이트 전용 포트폴리오 사이트입니다.
+                </p>
+            </div>
+
+            <!-- Funny disclaimer to fit B-type style -->
+            <div class="bg-gray-800 p-4 rounded-xl comic-border max-w-sm">
+                <p class="text-xs font-bold text-brandYellow flex items-center gap-2 mb-1 whitespace-nowrap">
+                    <i class="fa-solid fa-hand-holding-heart"></i> 맵찔이 동료 긴급 대피 수칙
+                </p>
+                <p class="text-gray-300 text-xs leading-relaxed">
+                    본 동료는 매운 엽기떡볶이나 불닭볶음면 등의 지옥 불맛 음식을 같이 먹어줄 수 없는 치명적인 보호 유전자를 지니고 있습니다. 만약 매운 메뉴 제안 시 즉시 눈물 콧물이 소환되오니 양해 바랍니다!
+                </p>
+            </div>
+        </div>
+
+        <div class="max-w-6xl mx-auto border-t border-gray-800 mt-12 pt-6 flex flex-col sm:flex-row justify-between items-center text-xs text-gray-500 gap-4">
+            <p>© 2026 SSAFY Gwangju Class 1. All Rights Reserved. 너 내 밥 동료가 돼라!</p>
+            <div class="flex space-x-4">
+                <span class="hover:text-brandYellow transition-colors whitespace-nowrap">🍖 SSAFY 16기 파이팅</span>
+                <span class="hover:text-brandYellow transition-colors whitespace-nowrap">💡 파이썬 관통 기원</span>
+            </div>
+        </div>
+    </footer>
+
+</body>
+</html>
